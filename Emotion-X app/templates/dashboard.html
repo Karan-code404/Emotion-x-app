@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Dashboard</title>
+  <style>
+    body {
+      background-color: yellow;
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: Arial, sans-serif;
+    }
+
+    .dashboard-box {
+      background-color: white;
+      padding: 40px 60px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    .dashboard-box h2 {
+      margin-top: 0;
+      color: #333;
+    }
+
+    .dashboard-box p {
+      font-size: 16px;
+      color: #555;
+    }
+
+    .dashboard-box a button {
+      padding: 12px 20px;
+      font-size: 16px;
+      background-color: #4a90e2;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 15px;
+      transition: background-color 0.3s ease;
+    }
+
+    .dashboard-box a button:hover {
+      background-color: #357abd;
+    }
+
+    .dashboard-box a.logout {
+      display: inline-block;
+      margin-top: 25px;
+      color: #e53935;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 15px;
+    }
+
+    .dashboard-box a.logout:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="dashboard-box">
+    <h2>Welcome, {{ username }}!</h2>
+    <p>Your login was successful. You can now access the emotion detection AI below:</p>
+
+    <a href="http://localhost:8501" target="_blank">
+      <button>Launch Emotion Detection AI</button>
+    </a>
+
+    <br />
+
+    <a href="{{ url_for('logout') }}" class="logout">Logout</a>
+  </div>
+
+</body>
+</html>

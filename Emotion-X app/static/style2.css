@@ -1,0 +1,143 @@
+/* Reset */
+* {
+  box-sizing: border-box;
+}
+
+/* Body styles */
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #fcff48;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end; /* content on right side */
+  padding: 40px 60px;
+}
+
+/* Header */
+header {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 36px;
+  color: #222;
+  font-weight: 700;
+}
+
+/* Emoji container */
+.emoji-container {
+  position: fixed;
+  top: 50%;
+  left: 40px;
+  transform: translateY(-50%);
+  cursor: default;
+  z-index: 10;
+}
+
+.emoji-container img {
+  width: 80px;
+  height: 80px;
+  animation: bounce 2s infinite;
+}
+
+/* Bounce animation */
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+/* Register box */
+.register-container {
+  background-color: white;
+  width: 360px;
+  padding: 35px 40px;
+  margin-top: 80px;
+  border-radius: 12px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  box-sizing: border-box;
+}
+
+/* Title */
+.register-container h2 {
+  margin-top: 0;
+  margin-bottom: 25px;
+  font-weight: 600;
+  text-align: center;
+  color: #333;
+}
+
+/* Labels */
+.register-container label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: #555;
+}
+
+/* Inputs */
+.register-container input[type="text"],
+.register-container input[type="email"],
+.register-container input[type="password"] {
+  width: 100%;
+  padding: 10px 14px;
+  margin-bottom: 20px;
+  border: 1.8px solid #ccc;
+  border-radius: 8px;
+  font-size: 15px;
+  transition: border-color 0.3s ease;
+}
+
+.register-container input[type="text"]:focus,
+.register-container input[type="email"]:focus,
+.register-container input[type="password"]:focus {
+  border-color: #4a90e2;
+  outline: none;
+  box-shadow: 0 0 6px #4a90e2aa;
+}
+
+/* Button */
+.register-container button[type="submit"] {
+  width: 100%;
+  padding: 12px;
+  background-color: #4a90e2;
+  border: none;
+  color: white;
+  font-size: 17px;
+  font-weight: 700;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.register-container button[type="submit"]:hover {
+  background-color: #357ABD;
+}
+
+/* Paragraph */
+.register-container p {
+  margin-top: 18px;
+  text-align: center;
+  font-size: 14px;
+  color: #555;
+}
+
+.register-container p a {
+  color: #4a90e2;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+.register-container p a:hover {
+  text-decoration: underline;
+  color: #357ABD;
+}
