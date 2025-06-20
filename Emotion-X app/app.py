@@ -1,21 +1,28 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
+from werkzeug.security import generate_password_hash, check_password_hash
 import json
 import os
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'  # Change this to something secure
+app.secret_key = os.getenv('SECRET_KEY', 'super-secret-key')  # Use env var in production
 
 USERS_FILE = 'users.json'
 
+# Load users from JSON file
 def load_users():
     if not os.path.exists(USERS_FILE):
         return []
     with open(USERS_FILE, 'r') as f:
         return json.load(f)
 
+# Save users to JSON file
 def save_users(users):
     with open(USERS_FILE, 'w') as f:
         json.dump(users, f, indent=4)
+
+@app.route('/')
+def home():
+    return redirect(url_for('login'))
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -34,7 +41,8 @@ def register():
             flash('Username already taken.')
             return redirect(url_for('register'))
 
-        users.append({'username': username, 'email': email, 'password': password})
+        hashed_password = generate_password_hash(password)
+        users.append({'username': username, 'email': email, 'password': hashed_password})
         save_users(users)
 
         flash('Registration successful! Please log in.')
@@ -49,9 +57,9 @@ def login():
         password = request.form['password']
 
         users = load_users()
-        user = next((u for u in users if u['username'] == username and u['password'] == password), None)
+        user = next((u for u in users if u['username'] == username), None)
 
-        if user:
+        if user and check_password_hash(user['password'], password):
             session['username'] = username
             flash('Login successful!')
             return redirect(url_for('dashboard'))
