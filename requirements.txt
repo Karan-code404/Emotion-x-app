@@ -1,6 +1,5 @@
 streamlit==1.24.1
-opencv-python
-mediapipe
+opencv-python==4.11.0.86
+mediapipe==0.8.10
 numpy
-pandas
-scikit-learn
+Pillow
