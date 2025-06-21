@@ -4,18 +4,16 @@ import json
 import os
 
 app = Flask(__name__)
-app.secret_key = os.getenv('SECRET_KEY', 'super-secret-key')  # Use env var in production
+app.secret_key = os.getenv('SECRET_KEY', 'super-secret-key')
 
 USERS_FILE = 'users.json'
 
-# Load users from JSON file
 def load_users():
     if not os.path.exists(USERS_FILE):
         return []
     with open(USERS_FILE, 'r') as f:
         return json.load(f)
 
-# Save users to JSON file
 def save_users(users):
     with open(USERS_FILE, 'w') as f:
         json.dump(users, f, indent=4)
@@ -74,7 +72,6 @@ def dashboard():
     if 'username' not in session:
         flash('Please login first.')
         return redirect(url_for('login'))
-
     return render_template('dashboard.html', username=session['username'])
 
 @app.route('/logout')
