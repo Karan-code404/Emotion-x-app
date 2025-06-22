@@ -2,9 +2,10 @@ import streamlit as st
 import cv2
 import numpy as np
 import mediapipe as mp
-
-import av # Required by streamlit-webrtc for video frame handling
+# CORRECTED LINE: Changed 'webrtc_stream' to 'webrtc_streamer'
 from streamlit_webrtc import webrtc_streamer, VideoProcessorBase, WebRtcMode
+import av # Required by streamlit-webrtc for video frame handling
+
 st.set_page_config(layout="wide") # Optional: Use wide layout for better display
 
 st.title("Emotion-X: Real-time Emotion Detection")
@@ -131,7 +132,7 @@ class EmotionProcessor(VideoProcessorBase):
 
                 # Reference points on the face
                 # Ensure 'points' list from face_landmarks is populated
-                if points:
+                if points: # Check if face landmarks were detected and 'points' list is not empty
                     forehead = points[10] # Top of the head/forehead
                     left_eye = points[159] # Inner corner of left eye
                     right_eye = points[386] # Inner corner of right eye
@@ -164,7 +165,8 @@ class EmotionProcessor(VideoProcessorBase):
 
 # --- Streamlit UI for the webcam component ---
 st.subheader("Live Webcam Feed")
-webrtc_ctx = webrtc_stream(
+# CORRECTED LINE: Changed 'webrtc_stream' to 'webrtc_streamer'
+webrtc_ctx = webrtc_streamer(
     key="emotion_detection_webrtc", # Unique key for this component
     mode=WebRtcMode.SENDRECV, # Send video from client, receive processed video from server
     rtc_configuration={
@@ -184,7 +186,7 @@ else:
     st.info("Waiting for webcam to start... Please allow camera access in your browser.")
 
 
-# --- Optional: File Uploader as an alternative (logic for processing needs to be added) ---
+# --- Optional: File Uploader as an alternative (logic for processing included) ---
 st.subheader("Or Upload an Image/Video for Analysis")
 uploaded_file = st.file_uploader("Choose an image or video file", type=["jpg", "jpeg", "png", "mp4", "avi"])
 
@@ -194,13 +196,9 @@ if uploaded_file is not None:
         file_bytes = np.asarray(bytearray(uploaded_file.read()), dtype=np.uint8)
         image = cv2.imdecode(file_bytes, 1) # Read as BGR
         
-        # --- Add your emotion detection logic for static images here ---
-        # This part is separate from the real-time stream.
-        # You'll need to re-initialize MediaPipe models for static processing
-        # if you want to use the same logic as the real-time stream.
-        # Example (simplified):
-        
-        with mp_face.FaceMesh(static_image_mode=True, max_num_faces=1) as face_mesh_static, \
+        # --- Emotion detection logic for static images ---
+        # Initialize MediaPipe models for static processing in this context
+        with mp_face.FaceMesh(static_image_mode=True, max_num_faces=1, min_detection_confidence=0.5) as face_mesh_static, \
              mp_hands.Hands(static_image_mode=True, min_detection_confidence=0.7) as hands_static:
             
             rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
@@ -209,17 +207,18 @@ if uploaded_file is not None:
             face_results_static = face_mesh_static.process(rgb_image)
             hand_results_static = hands_static.process(rgb_image)
             
-            static_emotion = "Neutral (Uploaded)" # Default for static
-            
-            # Replicate your face and hand detection logic here
+            static_emotion = "Neutral (Uploaded)" # Default for static image
+            points_static = [] # Initialize points for static image processing
+
+            # Replicate your face detection and emotion logic here for the static image
             if face_results_static.multi_face_landmarks:
                 face_landmarks_static = face_results_static.multi_face_landmarks[0]
-                points_static = []
+                
                 for lm in face_landmarks_static.landmark:
                     x, y = int(lm.x * img_w), int(lm.y * img_h)
                     points_static.append((x, y))
 
-                # Angry detection (example)
+                # Angry detection
                 left_brow_left_y = points_static[70][1]
                 left_brow_right_y = points_static[52][1]
                 right_brow_left_y = points_static[282][1]
@@ -228,7 +227,7 @@ if uploaded_file is not None:
                 if right_brow_right_y < right_brow_left_y and left_brow_left_y < left_brow_right_y:
                     static_emotion = "😠 Angry (Uploaded)"
                 
-                # Smile/Laugh detection (example)
+                # Smile/Laugh detection
                 left_mouth = points_static[61]
                 right_mouth = points_static[291]
                 top_lip = points_static[13]
@@ -242,6 +241,7 @@ if uploaded_file is not None:
                 if mouth_width > 70 and mouth_height > 12:
                     static_emotion = "😂 Laughing (Uploaded)"
 
+                # Draw landmarks on the static image for visualization
                 mp_drawing.draw_landmarks(
                     image=image,
                     landmark_list=face_landmarks_static,
@@ -261,25 +261,28 @@ if uploaded_file is not None:
                     landmark_drawing_spec=mp_drawing_styles.get_default_face_mesh_iris_connections_style()
                 )
 
+            # Replicate hand detection logic for static image
             if hand_results_static.multi_hand_landmarks and face_results_static.multi_face_landmarks and points_static:
                 for hand_landmarks_static in hand_results_static.multi_hand_landmarks:
                     hand_tip = hand_landmarks_static.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP]
                     hx, hy = int(hand_tip.x * img_w), int(hand_tip.y * img_h)
 
-                    forehead = points_static[10]
-                    left_eye = points_static[159]
-                    right_eye = points_static[386]
+                    # Ensure points_static is populated from face detection above
+                    if points_static: 
+                        forehead = points_static[10]
+                        left_eye = points_static[159]
+                        right_eye = points_static[386]
 
-                    dist_forehead = get_distance((hx, hy), forehead)
-                    dist_left_eye = get_distance((hx, hy), left_eye)
-                    dist_right_eye = get_distance((hx, hy), right_eye)
+                        dist_forehead = get_distance((hx, hy), forehead)
+                        dist_left_eye = get_distance((hx, hy), left_eye)
+                        dist_right_eye = get_distance((hx, hy), right_eye)
 
-                    if (dist_left_eye < 60 or dist_right_eye < 60) and min(dist_left_eye, dist_right_eye) < dist_forehead:
-                        static_emotion = "😭 Crying (Hand on Eyes, Uploaded)"
-                    elif dist_forehead < 60:
-                        static_emotion = "😓 Stressed/Tension (Hand on Forehead, Uploaded)"
-                    elif 60 <= dist_forehead <= 120:
-                        static_emotion = "🤔 Confused (Scratching Head, Uploaded)"
+                        if (dist_left_eye < 60 or dist_right_eye < 60) and min(dist_left_eye, dist_right_eye) < dist_forehead:
+                            static_emotion = "😭 Crying (Hand on Eyes, Uploaded)"
+                        elif dist_forehead < 60:
+                            static_emotion = "😓 Stressed/Tension (Hand on Forehead, Uploaded)"
+                        elif 60 <= dist_forehead <= 120:
+                            static_emotion = "🤔 Confused (Scratching Head, Uploaded)"
 
                     mp_drawing.draw_landmarks(image, hand_landmarks_static, mp_hands.HAND_CONNECTIONS)
 
