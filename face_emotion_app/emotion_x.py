@@ -2,7 +2,6 @@ import streamlit as st
 import cv2
 import numpy as np
 import mediapipe as mp
-# CORRECTED LINE: Changed 'webrtc_stream' to 'webrtc_streamer'
 from streamlit_webrtc import webrtc_streamer, VideoProcessorBase, WebRtcMode
 import av # Required by streamlit-webrtc for video frame handling
 
@@ -165,7 +164,6 @@ class EmotionProcessor(VideoProcessorBase):
 
 # --- Streamlit UI for the webcam component ---
 st.subheader("Live Webcam Feed")
-# CORRECTED LINE: Changed 'webrtc_stream' to 'webrtc_streamer'
 webrtc_ctx = webrtc_streamer(
     key="emotion_detection_webrtc", # Unique key for this component
     mode=WebRtcMode.SENDRECV, # Send video from client, receive processed video from server
@@ -178,12 +176,13 @@ webrtc_ctx = webrtc_streamer(
 )
 
 # Display status based on WebRTC context
+# Corrected status checks as 'stopped' attribute does not exist
 if webrtc_ctx.state.playing:
     st.success("Webcam is active and detecting emotions!")
-elif webrtc_ctx.state.stopped:
-    st.info("Webcam stopped. Click 'Start' in the video player above to reactivate.")
+elif webrtc_ctx.state.webrtc_ready: # Check if WebRTC connection is ready but not yet playing
+    st.info("Webcam is ready. Click 'Start' in the video player above to activate detection.")
 else:
-    st.info("Waiting for webcam to start... Please allow camera access in your browser.")
+    st.info("Waiting for webcam to initialize... Please allow camera access in your browser.")
 
 
 # --- Optional: File Uploader as an alternative (logic for processing included) ---
