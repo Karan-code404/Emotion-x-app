@@ -176,13 +176,12 @@ webrtc_ctx = webrtc_streamer(
 )
 
 # Display status based on WebRTC context
-# Corrected status checks as 'stopped' attribute does not exist
+# Corrected status checks to avoid 'stopped' and make it more robust
 if webrtc_ctx.state.playing:
     st.success("Webcam is active and detecting emotions!")
-elif webrtc_ctx.state.webrtc_ready: # Check if WebRTC connection is ready but not yet playing
-    st.info("Webcam is ready. Click 'Start' in the video player above to activate detection.")
 else:
-    st.info("Waiting for webcam to initialize... Please allow camera access in your browser.")
+    # This covers all other states: not yet started, paused, stopped, or waiting for permission
+    st.info("Webcam is initializing or paused. Please click 'Start' in the video player above and allow camera access.")
 
 
 # --- Optional: File Uploader as an alternative (logic for processing included) ---
