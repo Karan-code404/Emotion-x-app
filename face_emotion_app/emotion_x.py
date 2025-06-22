@@ -37,7 +37,7 @@ class EmotionProcessor(VideoProcessorBase):
             min_detection_confidence=0.7,
             min_tracking_confidence=0.5
         )
-        # Added for drawing bounding boxes more easily
+        # ADDED for drawing bounding boxes more easily
         self.face_detection = mp.solutions.face_detection.FaceDetection(min_detection_confidence=0.5)
 
     def recv(self, frame: av.VideoFrame) -> av.VideoFrame:
@@ -54,12 +54,13 @@ class EmotionProcessor(VideoProcessorBase):
         # Process with MediaPipe Face Mesh and Hands
         face_results = self.face_mesh.process(rgb_frame)
         hand_results = self.hands.process(rgb_frame)
-        face_detection_results = self.face_detection.process(rgb_frame) # Use for bounding boxes
+        # ADDED: Use FaceDetection for initial bounding box
+        face_detection_results = self.face_detection.process(rgb_frame)
 
         emotion = "Neutral" # Default emotion
         points = [] # Initialize points for current frame
 
-        # --- Debugging: Check if faces/hands are detected ---
+        # --- DEBUGGING: Check if faces/hands are detected ---
         num_faces = len(face_results.multi_face_landmarks) if face_results.multi_face_landmarks else 0
         num_hands = len(hand_results.multi_hand_landmarks) if hand_results.multi_hand_landmarks else 0
         print(f"DEBUG: Faces detected: {num_faces}, Hands detected: {num_hands}")
@@ -74,13 +75,14 @@ class EmotionProcessor(VideoProcessorBase):
                 x, y = int(lm.x * img_w), int(lm.y * img_h)
                 points.append((x, y))
 
-            # --- Drawing Face Bounding Box (from face_detection for clarity) ---
+            # --- ADDED: Drawing Face Bounding Box (from face_detection for clarity) ---
             if face_detection_results.detections:
                 for detection in face_detection_results.detections:
                     mp.solutions.drawing_utils.draw_detection(img, detection)
 
 
             # --- EYEBROW DOTS (GREEN) for Angry detection ---
+            # Increased size to 5 for better visibility in debug
             cv2.circle(img, points[70], 5, (0, 255, 0), -1)    # Left eyebrow - far left
             cv2.circle(img, points[52], 5, (0, 255, 0), -1)    # Left eyebrow - middle
             cv2.circle(img, points[282], 5, (0, 255, 0), -1)   # Right eyebrow - middle
