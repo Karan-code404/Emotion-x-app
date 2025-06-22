@@ -2,9 +2,9 @@ import streamlit as st
 import cv2
 import numpy as np
 import mediapipe as mp
-from streamlit_webrtc import webrtc_stream, VideoProcessorBase, WebRtcMode
-import av # Required by streamlit-webrtc for video frame handling
 
+import av # Required by streamlit-webrtc for video frame handling
+from streamlit_webrtc import webrtc_streamer, VideoProcessorBase, WebRtcMode
 st.set_page_config(layout="wide") # Optional: Use wide layout for better display
 
 st.title("Emotion-X: Real-time Emotion Detection")
