@@ -9,7 +9,7 @@ st.set_page_config(layout="wide") # Optional: Use wide layout for better display
 
 st.title("Emotion-X: Real-time Emotion Detection")
 st.write("This app detects emotions in real-time using your webcam. Please allow camera access in your browser when prompted.")
-st.warning("Debugging info will be visible in the Streamlit Cloud logs and on the video feed.")
+st.warning("Debugging info will be visible in the Streamlit Cloud logs and on the video feed.") # THIS LINE SHOULD APPEAR
 
 # Initialize MediaPipe (global for drawing utilities)
 mp_face = mp.solutions.face_mesh
@@ -37,7 +37,7 @@ class EmotionProcessor(VideoProcessorBase):
             min_detection_confidence=0.7,
             min_tracking_confidence=0.5
         )
-        # ADDED for drawing bounding boxes more easily
+        # ADDED for drawing bounding boxes more easily - THIS LINE SHOULD BE HERE
         self.face_detection = mp.solutions.face_detection.FaceDetection(min_detection_confidence=0.5)
 
     def recv(self, frame: av.VideoFrame) -> av.VideoFrame:
@@ -54,13 +54,13 @@ class EmotionProcessor(VideoProcessorBase):
         # Process with MediaPipe Face Mesh and Hands
         face_results = self.face_mesh.process(rgb_frame)
         hand_results = self.hands.process(rgb_frame)
-        # ADDED: Use FaceDetection for initial bounding box
+        # ADDED: Use FaceDetection for initial bounding box - THIS LINE SHOULD BE HERE
         face_detection_results = self.face_detection.process(rgb_frame)
 
         emotion = "Neutral" # Default emotion
         points = [] # Initialize points for current frame
 
-        # --- DEBUGGING: Check if faces/hands are detected ---
+        # --- DEBUGGING: Check if faces/hands are detected --- THIS SECTION SHOULD BE HERE
         num_faces = len(face_results.multi_face_landmarks) if face_results.multi_face_landmarks else 0
         num_hands = len(hand_results.multi_hand_landmarks) if hand_results.multi_hand_landmarks else 0
         print(f"DEBUG: Faces detected: {num_faces}, Hands detected: {num_hands}")
@@ -75,7 +75,7 @@ class EmotionProcessor(VideoProcessorBase):
                 x, y = int(lm.x * img_w), int(lm.y * img_h)
                 points.append((x, y))
 
-            # --- ADDED: Drawing Face Bounding Box (from face_detection for clarity) ---
+            # --- ADDED: Drawing Face Bounding Box (from face_detection for clarity) --- THIS SHOULD BE HERE
             if face_detection_results.detections:
                 for detection in face_detection_results.detections:
                     mp.solutions.drawing_utils.draw_detection(img, detection)
@@ -110,7 +110,7 @@ class EmotionProcessor(VideoProcessorBase):
 
             print(f"DEBUG: Mouth Width: {mouth_width}, Mouth Height: {mouth_height}")
 
-            # Adjusted thresholds slightly for testing. You may need to tune these.
+            # Adjusted thresholds slightly for testing. You may need to tune these. - THESE VALUES SHOULD BE CHANGED
             if mouth_width > 50 and mouth_height < 25: # Slightly loosened from >60, <20
                 emotion = "😊 Happy (Smiling)"
             if mouth_width > 60 and mouth_height > 10: # Slightly loosened from >70, >12
@@ -155,7 +155,7 @@ class EmotionProcessor(VideoProcessorBase):
                     print(f"DEBUG: Hand Distances (Forehead: {dist_forehead}, Left Eye: {dist_left_eye}, Right Eye: {dist_right_eye})")
 
 
-                    # Adjusted thresholds slightly for testing. You may need to tune these.
+                    # Adjusted thresholds slightly for testing. You may need to tune these. - THESE VALUES SHOULD BE CHANGED
                     if (dist_left_eye < 50 or dist_right_eye < 50) and min(dist_left_eye, dist_right_eye) < dist_forehead: # Loosened from <60
                         emotion = "😭 Crying (Hand on Eyes)"
                     elif dist_forehead < 50: # Loosened from <60
@@ -166,7 +166,7 @@ class EmotionProcessor(VideoProcessorBase):
                 mp_drawing.draw_landmarks(img, hand_landmarks, mp_hands.HAND_CONNECTIONS)
 
         # Display emotion label on the frame
-        print(f"DEBUG: Final Emotion: {emotion}")
+        print(f"DEBUG: Final Emotion: {emotion}") # THIS LINE SHOULD APPEAR
         cv2.putText(img, f'Emotion: {emotion}', (10, 30),
                     cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
 
@@ -213,7 +213,7 @@ if uploaded_file is not None:
 
             face_detection_results_static = face_detection_static.process(rgb_image)
             face_results_static = face_mesh_static.process(rgb_image)
-            hand_results_static = hands_static.process(rgb_image)
+            hand_results_static = hands_static.process(rgb_frame) # Use rgb_frame from video processing for consistency
             
             static_emotion = "Neutral (Uploaded)" # Default for static image
             points_static = [] # Initialize points for static image processing
