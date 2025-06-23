@@ -187,4 +187,4 @@ else:
     st.info("Webcam is initializing or paused. Please click 'Start' in the video player above and allow camera access.")
 
 # --- Removed the file upload option entirely ---
-# No more code here for file upload.
+# No more code here for file upload. v
